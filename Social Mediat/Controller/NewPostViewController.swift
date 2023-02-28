@@ -8,22 +8,43 @@
 import UIKit
 
 class NewPostViewController: UIViewController {
-
+    
+    @IBOutlet weak var newPostTextField: UITextField!
+    
+    @IBOutlet weak var newPostImageTxtField: UITextField!
+    @IBOutlet weak var imageTxtContainerView: ShadowV!
+    
+    var postNetworkProtocol : PostNetworkProtocol?
+    
     override func viewDidLoad() {
         super.viewDidLoad()
-
-        // Do any additional setup after loading the view.
+        postNetworkProtocol = PostNetworkService()
+        imageTxtContainerView.isHidden = true
+        
     }
     
-
-    /*
-    // MARK: - Navigation
-
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        // Get the new view controller using segue.destination.
-        // Pass the selected object to the new view controller.
+    func createNewPost(){
+        guard let text = newPostTextField.text,!text.isEmpty,let userId = UserManager.logedUser?.id else {return}
+        
+        postNetworkProtocol?.addPost(text: text, image: newPostImageTxtField.text ?? "", userId: userId, completionHandler: {
+            
+        })
     }
-    */
-
+    
+    @IBAction func backBtn(_ sender: Any) {
+        dismiss(animated: true)
+    }
+    
+    @IBAction func showImageTxtField(_ sender: Any) {
+        imageTxtContainerView.isHidden = !imageTxtContainerView.isHidden
+    }
+    
+    
+    @IBAction func addNewPost(_ sender: Any) {
+        createNewPost()
+        newPostTextField.text = ""
+        newPostImageTxtField.text = ""
+        guard let allPostsvVC = storyboard?.instantiateViewController(withIdentifier: "TabBarVC") as? MainTabBarController else {return}
+        present(allPostsvVC, animated: true)
+    }
 }

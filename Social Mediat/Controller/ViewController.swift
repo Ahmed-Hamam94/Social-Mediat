@@ -11,6 +11,7 @@ class ViewController: UIViewController {
     
     @IBOutlet weak var tagContainerView: UIView!
     
+    @IBOutlet weak var containerBtn: ShadowV!
     @IBOutlet weak var tagLabel: UILabel!
     @IBOutlet weak var hiUserLabel: UILabel!
     
@@ -18,50 +19,40 @@ class ViewController: UIViewController {
     
     @IBOutlet weak var closeButton: UIButton!
     var postsArray = [Dataa]()
-   // var signInUser : UserData?
     var networkProtocol : PostNetworkProtocol?
     var tag : String?
-//    let appId = "63f0f841bf380d3a27cfff5c"
-//    let url = "https://dummyapi.io/data/v1/post"
-//    lazy var headers : HTTPHeaders = ["app-id":appId]
-   // let indicator = UIActivityIndicatorView(style: .large)
-
+    var pageCount = 0
+    var total = 0
     
     override func viewDidLoad() {
         super.viewDidLoad()
         networkProtocol = PostNetworkService()
-       // setUpIndicator()
-        Indicator.shared.setUpIndicator(view: view)
         checkTags()
         checkUser()
-        networkProtocol?.getAllPosts(tag: tag, completionHandler: { post in
-            print(post)
-            self.postsArray = post.data
-            self.postTablView.reloadData()
-            Indicator.shared.indicator.stopAnimating()
-        })
-        
+        getAllPosts()
         observeNotification()
-//        AF.request(url,method: .get,encoding: JSONEncoding.default,headers: headers).responseDecodable(of: Posts.self) { response in
-//            guard let postsRespone = response.value else {return}
-//
-//            let postsData = postsRespone.data
-//            print(postsData)
-//            self.postsArray = postsData
-//            self.postTablView.reloadData()
-//        }
         setUpTable()
         setUpCell()
     }
-//    override func viewWillAppear(_ animated: Bool) {
-//        Indicator.shared.setUpIndicator(view: view)
-//
-//    }
+    
+    func getAllPosts(){
+        Indicator.shared.setUpIndicator(view: view)
+        networkProtocol?.getAllPosts(page: pageCount, tag: tag, completionHandler: { [weak self] post in
+            guard let self = self else{return}
+            print(post)
+            self.total = post.total
+            self.postsArray.append(contentsOf: post.data)
+            self.postTablView.reloadData()
+            print(self.postsArray.count)
+            Indicator.shared.indicator.stopAnimating()
+        })
+    }
     func checkUser(){
         if let user = UserManager.logedUser{   //signInUser
             hiUserLabel.text = "Hello, \(user.firstName)"
         }else{
             hiUserLabel.isHidden = true
+            containerBtn.isHidden = true
         }
     }
     func checkTags(){
@@ -81,14 +72,14 @@ class ViewController: UIViewController {
     func setUpCell(){
         postTablView.register(UINib(nibName: "PostTableViewCell", bundle: nil), forCellReuseIdentifier: "PostTableViewCell")
     }
-//    func setUpIndicator(){
-//        indicator.center = view.center
-//        view.addSubview(indicator)
-//        indicator.startAnimating()
-//    }
+    
     func observeNotification(){
         NotificationCenter.default.addObserver(self, selector: #selector(userSVClicked), name: NSNotification.Name(rawValue: "userSv"), object: nil)
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(userChanePic), name: NSNotification.Name(rawValue: "changeProfilePic"), object: nil)
+        
     }
+    
     @objc func userSVClicked(notification: Notification){
         if let cell = notification.userInfo?["cell"] as? UITableViewCell{
             if let index = postTablView.indexPath(for: cell){
@@ -100,18 +91,23 @@ class ViewController: UIViewController {
         }
         
     }
+    @objc func userChanePic(notification: Notification){
+        self.postsArray = []
+        self.pageCount = 0
+        getAllPosts()
+    }
+    
     @IBAction func signInOutButton(_ sender: Any) {
         guard let signInVC = self.storyboard?.instantiateViewController(withIdentifier: "SignInViewController") as? SignInViewController else{return}
         UserManager.logedUser = nil
-
+        
         self.present(signInVC, animated: true)
-       // UserManager.logedUser = nil
-//        self.dismiss(animated: true)
+        
     }
     
     @IBAction func closeButton(_ sender: Any) {
         self.dismiss(animated: true)
-
+        
     }
     
 }
@@ -124,28 +120,47 @@ extension ViewController : UITableViewDelegate,UITableViewDataSource{
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         guard let cell = tableView.dequeueReusableCell(withIdentifier: "PostTableViewCell", for: indexPath) as? PostTableViewCell else{return PostTableViewCell()}
         let post = postsArray[indexPath.row]
-        let imgString = post.image
-        cell.postImageView.setUpImageFromString(stringUrl: imgString)
-        cell.postTextLabel.text = post.text
+        if  post.image != ""{
+            cell.postImageView.setUpImageFromString(stringUrl: post.image )
+            
+            cell.postImageView.isHidden = false
+        }else{
+            cell.postImageView.isHidden = true
+        }
+        cell.postTextLabel.text = "  \(post.text)"
         cell.userNameLabel.text = post.owner.firstName + " " + post.owner.lastName
         if let imgUserString = post.owner.picture{
             cell.userImageView.setUpImageFromString(stringUrl: imgUserString)
-
+        }else{
+            cell.userImageView.image = UIImage(systemName: "person")
         }
-        cell.likesLabel.text = "\(post.likes)"
+        
+        cell.likesLabel.text = "\(post.likes ?? 1)"
+        cell.tags = post.tags ?? [""]
         return cell
     }
+    
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
         let selectedPost = postsArray[indexPath.row]
         if let detailsVC = storyboard?.instantiateViewController(withIdentifier: "PostDetailsViewController") as? PostDetailsViewController{
             detailsVC.post = selectedPost
-          // detailsVC.logeddUser = signInUser // 
             present(detailsVC, animated: true)
         }
     }
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        return 460
+        return 548
     }
+    func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
+        if indexPath.row == postsArray.count - 1 && postsArray.count < total{
+            pageCount = pageCount + 1
+            getAllPosts()
+        }
+    }
+    
+    
 }
+
+
+

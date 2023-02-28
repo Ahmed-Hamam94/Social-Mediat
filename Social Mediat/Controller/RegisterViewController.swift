@@ -22,48 +22,49 @@ class RegisterViewController: UIViewController {
         }
     }
     @IBOutlet weak var goToSignInBtn: UIButton!{
-            didSet{
-                goToSignInBtn.layer.shadowColor = UIColor.gray.cgColor
-                goToSignInBtn.layer.shadowOpacity = 0.5
-                goToSignInBtn.layer.shadowOffset = CGSize(width: 0, height: 10)
-                goToSignInBtn.layer.cornerRadius = 10
-            }
+        didSet{
+            goToSignInBtn.layer.shadowColor = UIColor.gray.cgColor
+            goToSignInBtn.layer.shadowOpacity = 0.5
+            goToSignInBtn.layer.shadowOffset = CGSize(width: 0, height: 10)
+            goToSignInBtn.layer.cornerRadius = 10
+        }
     }
     
     var usernetworkProtocol : UserNetworkProtocol?
     var user : NewUser?
+    
     override func viewDidLoad() {
         super.viewDidLoad()
-usernetworkProtocol = UserNetworkService()
-        // Do any additional setup after loading the view.
+        usernetworkProtocol = UserNetworkService()
+        
     }
     
     @IBAction func registerButton(_ sender: Any) {
         guard let firstName = firstNameTxt.text, let lastName = lastNameTxt.text, let email = emailTxt.text else{return}
-        usernetworkProtocol?.createNewUser(firstName: firstName,lastName: lastName,email: email,completionHandler: { user,errorMsg in
-            //let data = user?.data
-            //let error = user?.error
-           
+        usernetworkProtocol?.createNewUser(firstName: firstName,lastName: lastName,email: email,completionHandler: { [weak self] user,errorMsg in
+            guard let self = self else{return}
+
             if errorMsg != nil {
                 let alert = UIAlertController(title: "Error", message: errorMsg, preferredStyle: .alert)
                 let action = UIAlertAction(title: "Ok", style: .default)
                 alert.addAction(action)
                 self.present(alert, animated: true)
             }else{
-                //self.user = user
                 let alert = UIAlertController(title: "Success", message: "User Created", preferredStyle: .alert)
                 let action = UIAlertAction(title: "Ok", style: .default)
                 alert.addAction(action)
                 self.present(alert, animated: true)
-
+                
             }
+            self.firstNameTxt.text = ""
+            self.lastNameTxt.text = ""
+            self.emailTxt.text = ""
         })
     }
     
- 
+    
     @IBAction func goToSignInButton(_ sender: Any) {
-//        guard let signInVC = self.storyboard?.instantiateViewController(withIdentifier: "SignInViewController") as? SignInViewController else{return}
-//        self.present(signInVC, animated: true)
+        
         self.dismiss(animated: true)
     }
     

@@ -8,22 +8,71 @@
 import UIKit
 
 class MyProfileInfoViewController: UIViewController {
-
+    
+    @IBOutlet weak var userNameLabel: UILabel!
+    
+    @IBOutlet weak var userImageView: UIImageView!
+    
+    @IBOutlet weak var titleTextField: UITextField!
+    @IBOutlet weak var phoneTextField: UITextField!
+    @IBOutlet weak var gendreTextField: UITextField!
+    @IBOutlet weak var imageUrlTextField: UITextField!
+    
+    var userNetworkProtocol : UserNetworkProtocol?
+    
     override func viewDidLoad() {
         super.viewDidLoad()
-
-        // Do any additional setup after loading the view.
+        userNetworkProtocol = UserNetworkService()
+        setUpUserUI()
     }
     
-
-    /*
-    // MARK: - Navigation
-
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        // Get the new view controller using segue.destination.
-        // Pass the selected object to the new view controller.
+    
+    func setUpUserUI(){
+        
+        userImageView.makeCircular()
+        if let user = UserManager.logedUser{
+            userNameLabel.text = user.firstName + " " + user.lastName
+            userImageView.setUpImageFromString(stringUrl: user.picture ?? "url")
+            imageUrlTextField.text = user.picture ?? ""
+            titleTextField.text = user.title
+            
+            userNetworkProtocol?.getSpecificUser(userId: user.id, completionHandler: {[weak self] user in
+                guard let self = self else{return}
+                DispatchQueue.main.async {
+                    self.gendreTextField.text = user.gender
+                    self.phoneTextField.text = user.phone
+                }
+            })
+            
+            
+        }
     }
-    */
-
+    
+    func addUserInfo(){
+        guard let userLoged = UserManager.logedUser,let picture = imageUrlTextField.text else {return}
+        Indicator.shared.setUpIndicator(view: view)
+        userNetworkProtocol?.updateUserInfo(userId: userLoged.id, title: titleTextField.text!, phone: phoneTextField.text!, gender: gendreTextField.text!, picture: picture, completionHandler: { [weak self] user, message in
+            guard let self = self else{return}
+            Indicator.shared.indicator.stopAnimating()
+            if let responseUser = user {
+                guard let title = responseUser.title else{return}
+                print(responseUser)
+                
+                DispatchQueue.main.async {
+                    self.titleTextField.text = title
+                    
+                    self.userImageView.setUpImageFromString(stringUrl: responseUser.picture ?? "")
+                }
+                
+            }
+            NotificationCenter.default.post(name: NSNotification.Name("changeProfilePic"), object: nil,userInfo: nil)
+            
+        })
+    }
+    
+    
+    @IBAction func submitButton(_ sender: Any) {
+        addUserInfo()
+    }
+    
 }

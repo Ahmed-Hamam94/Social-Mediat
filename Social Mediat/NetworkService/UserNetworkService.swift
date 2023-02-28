@@ -15,13 +15,16 @@ protocol UserNetworkProtocol{
     func createNewUser(firstName: String,lastName: String,email: String,completionHandler: @escaping (UserData?,String?) -> Void)
     
     func signInUser(firstName: String,lastName: String,completionHandler: @escaping (UserData?,String?) -> Void)
+    
+    func updateUserInfo
+    (userId: String,title: String,phone: String,gender: String,picture: String,completionHandler: @escaping (UserData?,String?) -> Void)
+    
 }
 
 class UserNetworkService: Api, UserNetworkProtocol {
     
     func getSpecificUser(userId: String, completionHandler: @escaping (UserData) -> Void) {
         let url = "\(baseUrl)/user/\(userId)"
-        // let url = "https://dummyapi.io/data/v1/user/\(userId)"
         AF.request(url,method: .get,encoding: JSONEncoding.default,headers: headers).responseDecodable(of: UserData.self) { response in
             guard let postsRespone = response.value else {return}
             completionHandler(postsRespone)
@@ -29,7 +32,6 @@ class UserNetworkService: Api, UserNetworkProtocol {
     }
     
     func createNewUser(firstName: String,lastName: String,email: String,completionHandler: @escaping (UserData?,String?) -> Void) {
-        // let url = "https:dummyapi.io/data/v1/user/create"
         let url = "\(baseUrl)/user/create"
         let param = [   "firstName": firstName,
                         "lastName": lastName,
@@ -49,7 +51,7 @@ class UserNetworkService: Api, UserNetworkProtocol {
                 }
             case let .failure(errorr):
                 print(errorr)
-
+                
                 let respoData = JSON(response.data ?? "")
                 let data = respoData["data"]
                 let emailError = data["email"].stringValue
@@ -61,6 +63,7 @@ class UserNetworkService: Api, UserNetworkProtocol {
             }
         }
     }
+    
     func signInUser(firstName: String,lastName: String,completionHandler: @escaping (UserData?,String?) -> Void){
         let url = "\(baseUrl)/user"
         let param = [ "created" : "1" ]
@@ -85,16 +88,52 @@ class UserNetworkService: Api, UserNetworkProtocol {
                         completionHandler(foundUser,nil)
                     }else{
                         completionHandler(nil,"The FirstName or The LastName dose not match any user.")
-
+                        
                     }
-
-                   
+                    
+                    
                 }catch let error{
                     print(error)
                 }
             case let .failure(errorr):
                 print(errorr)
-
+                
+                let respoData = JSON(response.data ?? "")
+                let data = respoData["data"]
+                let emailError = data["email"].stringValue
+                let firstNameError = data["firstName"].stringValue
+                let lastNameError = data["lastName"].stringValue
+                let errorMsg = emailError + " " + firstNameError + " " + lastNameError
+                print(errorMsg)
+                completionHandler(nil,errorMsg)
+            }
+        }
+        
+    }
+    
+    func updateUserInfo
+    (userId: String,title: String,phone: String,gender: String,picture: String,completionHandler: @escaping (UserData?,String?) -> Void){
+        
+        let url = "\(baseUrl)/user/\(userId)"
+        let param = ["title" : title ,"phone" : phone, "gender" : gender, "picture" : picture ]
+        AF.request(url,method: .put,parameters: param,encoder: JSONParameterEncoder.default,headers: headers).validate().response { response in
+            switch response.result {
+            case .success:
+                print("Validation Successful")
+                let jsonData = JSON(response.value as Any)
+                
+                let decoder = JSONDecoder()
+                do{
+                    let userResult = try decoder.decode(UserData.self, from: jsonData.rawData())
+                    print(userResult)
+                    completionHandler(userResult,nil)
+                    
+                }catch let error{
+                    print(error)
+                }
+            case let .failure(errorr):
+                print(errorr)
+                
                 let respoData = JSON(response.data ?? "")
                 let data = respoData["data"]
                 let emailError = data["email"].stringValue

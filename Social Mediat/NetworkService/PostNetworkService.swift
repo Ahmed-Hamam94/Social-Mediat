@@ -10,28 +10,27 @@ import Alamofire
 import SwiftyJSON
 
 protocol PostNetworkProtocol{
-    func getAllPosts(tag: String?,completionHandler: @escaping(Posts)-> Void)
+    func getAllPosts(page: Int,tag: String?,completionHandler: @escaping(Posts)-> Void)
     func getComments(postId: String,completionHandler: @escaping ([CommentData]) -> Void)
     func createComment(postId: String,userId: String,commentMsg: String,completionHandler: @escaping () -> Void)
     func getAllTags(completionHandler: @escaping([String?])-> Void)
-
+    func addPost(text: String,image: String,userId: String,completionHandler: @escaping () -> Void)
+    
 }
 
 class PostNetworkService:Api,PostNetworkProtocol{
     
-    func getAllPosts(tag: String?,completionHandler: @escaping (Posts) -> Void) {
+    func getAllPosts(page: Int,tag: String?,completionHandler: @escaping (Posts) -> Void) {
         var url = baseUrl + "/post"
-        //let url = "https://dummyapi.io/data/v1/post"
         if var myTag = tag{
             myTag = myTag.trimmingCharacters(in: .whitespaces)
             myTag = myTag.components(separatedBy: CharacterSet.punctuationCharacters).joined(separator: "")
             myTag = myTag.replacingOccurrences(of: " ", with: "")
-
-
             url = "\(baseUrl)/tag/\(myTag)/post"
         }
+        let param = ["page":"\(page)"]
         
-        AF.request(url,method: .get,encoding: JSONEncoding.default,headers: headers).responseDecodable(of: Posts.self) { response in
+        AF.request(url,method: .get, parameters: param,encoder: URLEncodedFormParameterEncoder.default,headers: headers).responseDecodable(of: Posts.self) { response in
             guard let postsRespone = response.value else {return}
             completionHandler(postsRespone)
         }
@@ -39,7 +38,6 @@ class PostNetworkService:Api,PostNetworkProtocol{
     
     
     func getComments(postId: String,completionHandler: @escaping ([CommentData]) -> Void) {
-     //   let urll = "https://dummyapi.io/data/v1/post/\(postId)/comment"
         let url = "\(baseUrl)/post/\(postId)/comment"
         
         AF.request(url,headers: headers).responseJSON { response in
@@ -59,8 +57,8 @@ class PostNetworkService:Api,PostNetworkProtocol{
         }
         
     }
+    
     func createComment(postId: String,userId: String,commentMsg: String,completionHandler: @escaping () -> Void) {
-        // let url = "https:dummyapi.io/data/v1/user/create"
         let url = "\(baseUrl)/comment/create"
         let param = [   "post": postId,
                         "owner": userId,
@@ -69,15 +67,16 @@ class PostNetworkService:Api,PostNetworkProtocol{
             switch response.result {
             case .success:
                 completionHandler()
- 
+                
             case let .failure(errorr):
                 print(errorr)
-
-               
+                
+                
                 completionHandler()
             }
         }
     }
+    
     func getAllTags(completionHandler: @escaping([String?])-> Void){
         let url = baseUrl + "/tag"
         
@@ -97,32 +96,30 @@ class PostNetworkService:Api,PostNetworkProtocol{
             
         }
     }
-
     
-//    func getSpecificUser(userId: String, completionHandler: @escaping (Profile) -> Void) {
-//        let url = "https://dummyapi.io/data/v1/user/\(userId)"
-//
-//        AF.request(url,method: .get,encoding: JSONEncoding.default,headers: headers).responseDecodable(of: Profile.self) { response in
-//            guard let postsRespone = response.value else {return}
-//            completionHandler(postsRespone)
-//        }
-//    }
+    
+    func addPost(text: String,image: String,userId: String,completionHandler: @escaping () -> Void){
+        let url = "\(baseUrl)/post/create"
+        let param = [   "text": text,
+                        "owner": userId,
+                        "image": image]
+        AF.request(url,method: .post,parameters: param,encoding: JSONEncoding.default,headers: headers).validate().response { response in
+            switch response.result {
+            case .success:
+                completionHandler()
+                
+            case let .failure(errorr):
+                print(errorr)
+                
+                
+                completionHandler()
+            }
+        }
+    }
+    
     
     
     
 }
 
-/*
- using swiftyJson
- AF.request(url,headers: headers).responseJSON { response in
- let jsonData = JSON(response.value)
- let data = jsonData["data"]
- let decoder = JSONDecoder()
- do{
- let result = try decoder.decode([Data].self, from: data.rawData())
- print(result)
- }catch let error{
- print(error)
- }
- }
- */
+

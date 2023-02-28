@@ -8,9 +8,9 @@
 import UIKit
 import Alamofire
 class PostDetailsViewController: UIViewController {
-// MARK: OUTLETS
+    // MARK: OUTLETS
     
-
+    
     @IBOutlet weak var userImageView: UIImageView!
     @IBOutlet weak var userNameLabel: UILabel!
     @IBOutlet weak var postTextLabel: UILabel!
@@ -22,52 +22,39 @@ class PostDetailsViewController: UIViewController {
     @IBOutlet weak var commentTextField: UITextField!
     
     @IBOutlet weak var commentSV: UIStackView!
+    
     var postnetworkProtocol : PostNetworkProtocol?
-   // var postsArrayy = [Dataa]()
     var post : Dataa?
-   // var postId : Dataa?
     var comments = [CommentData]()
-   // var logeddUser : UserData?
-
-
+    
     override func viewDidLoad() {
         super.viewDidLoad()
-
-postnetworkProtocol = PostNetworkService()
+        
+        postnetworkProtocol = PostNetworkService()
         setUpTable()
         setUpPost()
         setUpCell()
         getComments()
         checkUserComment()
-        //guard let postId = post?.id else {return}
-        //let postId = post.id
-//        networkProtocol?.getCommentss(postId: postId,completionHandler: { comment in
-//            print(postId)
-//            self.comments = comment.data
-//            self.commentsTableView.reloadData()
-//        })
-//        let urll = "https://dummyapi.io/data/v1/post/60d21bf967d0d8992e610e9b/comment"
-//        let appId = "63f0f841bf380d3a27cfff5c"
-//        lazy var headers : HTTPHeaders = ["app-id":appId]
-//        AF.request(urll,method: .get,encoding: JSONEncoding.default,headers: headers).responseDecodable(of: Comment.self) { response in
-//            guard let postsRespone = response.value else {return}
-//           //  print(postId)
-//            print(postsRespone)
-//        }
+        
     }
+    
     func getComments(){
+        Indicator.shared.setUpIndicator(view: view)
+        
         if let postId = post?.id{
-            Indicator.shared.setUpIndicator(view: view)
-            postnetworkProtocol?.getComments(postId: postId,completionHandler: { comment in
+            postnetworkProtocol?.getComments(postId: postId,completionHandler: { [weak self] comment in
+                guard let self = self else{return}
+
                 print(postId)
                 self.comments = comment
+                
                 self.commentsTableView.reloadData()
-               // self.indicator.stopAnimating()
                 Indicator.shared.indicator.stopAnimating()
-
+                
             })
         }
-    
+        
     }
     
     func setUpPost(){
@@ -75,35 +62,45 @@ postnetworkProtocol = PostNetworkService()
         userImageView.setUpImageFromString(stringUrl: post?.owner.picture ?? "")
         userImageView.makeCircular()
         postTextLabel.text = post?.text
-        postImageView.setUpImageFromString(stringUrl: post?.image ?? "")
+        if  post?.image != ""{
+            postImageView.setUpImageFromString(stringUrl: post?.image ?? "" )
+            
+            postImageView.isHidden = false
+        }else{
+            postImageView.isHidden = true
+            
+        }
         likesLabel.text = "\(post?.likes ?? 1)"
     }
+    
     func setUpTable(){
         commentsTableView.delegate = self
         commentsTableView.dataSource = self
     }
+    
     func setUpCell(){
         commentsTableView.register(UINib(nibName: "CommentTableViewCell", bundle: nil), forCellReuseIdentifier: "CommentTableViewCell")
     }
-//    func setUpIndicator(){
-//        indicator.center = view.center
-//        view.addSubview(indicator)
-//        indicator.startAnimating()
-//    }
+    
     func checkUserComment(){
         if UserManager.logedUser == nil{  //logeddUser
             commentSV.isHidden = true
         }
     }
     
-    
-    @IBAction func addCommentButton(_ sender: Any) {
-        guard let commentText = commentTextField.text, let logedUser =  UserManager.logedUser, let postId = post?.id else{return}
+    func addComment(){
+        guard let commentText = commentTextField.text,!commentText.isEmpty ,let logedUser =  UserManager.logedUser, let postId = post?.id else{return}
         Indicator.shared.setUpIndicator(view: view)
-        postnetworkProtocol?.createComment(postId: postId, userId: logedUser.id, commentMsg: commentText, completionHandler: {
+        
+        postnetworkProtocol?.createComment(postId: postId, userId: logedUser.id, commentMsg: commentText, completionHandler: { [weak self]  in
+            guard let self = self else{return}
             self.getComments()
             self.commentTextField.text = ""
         })
+    }
+    
+    @IBAction func addCommentButton(_ sender: Any) {
+        addComment()
     }
     
     @IBAction func closeButton(_ sender: Any) {
@@ -115,25 +112,32 @@ postnetworkProtocol = PostNetworkService()
 extension PostDetailsViewController : UITableViewDelegate, UITableViewDataSource{
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return comments.count
-       // return 4
-
+        
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         guard let cell = tableView.dequeueReusableCell(withIdentifier: "CommentTableViewCell") as? CommentTableViewCell else{return CommentTableViewCell()}
+        
         let comment = comments[indexPath.row]
+        
         cell.commentMessageLabel.text = comment.message
+        
         if let lastName = comment.owner.lastName, let firstName = comment.owner.firstName{
             cell.userNameLabel.text =  firstName + " " + lastName
         }
-       
-        if let userImg = comment.owner.picture{
-            cell.userImageView.setUpImageFromString(stringUrl: userImg)
-
+        
+        if  comment.owner.picture != nil{
+            cell.userImageView.setUpImageFromString(stringUrl: comment.owner.picture ??  "")
+            
+        }else{
+            cell.userImageView.image = UIImage(systemName: "person")
+            
+            
         }
         
         return cell
     }
+    
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         return 110
     }

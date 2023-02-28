@@ -9,7 +9,7 @@ import UIKit
 
 class PostTableViewCell: UITableViewCell {
     
-  
+    
     @IBOutlet weak var userSV: UIStackView!{
         didSet{
             userSV.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(userSVDidTap)))
@@ -24,7 +24,6 @@ class PostTableViewCell: UITableViewCell {
     
     @IBOutlet weak var userImageView: UIImageView!{
         didSet{
-            //userImageView.layer.cornerRadius = userImageView.frame.width/2
             userImageView.makeCircular()
         }
     }
@@ -41,14 +40,13 @@ class PostTableViewCell: UITableViewCell {
     var tags = [String]()
     override func awakeFromNib() {
         super.awakeFromNib()
-        // Initialization code
     }
-
+    
     override func setSelected(_ selected: Bool, animated: Bool) {
         super.setSelected(selected, animated: animated)
-
-        // Configure the view for the selected state
+        
     }
+    
     @objc func userSVDidTap(){
         print("clicked")
         NotificationCenter.default.post(name: Notification.Name("userSv"),object: nil,userInfo: ["cell":self])

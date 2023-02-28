@@ -8,7 +8,7 @@
 import UIKit
 
 class SignInViewController: UIViewController {
-
+    
     @IBOutlet weak var signInBtn: UIButton!{
         didSet{
             signInBtn.layer.shadowColor = UIColor.gray.cgColor
@@ -30,43 +30,37 @@ class SignInViewController: UIViewController {
     @IBOutlet weak var lastNameTxt: UITextField!
     
     var usernetworkProtocol : UserNetworkProtocol?
-
+    
     override func viewDidLoad() {
         super.viewDidLoad()
-usernetworkProtocol = UserNetworkService()
-        firstNameTxt.text = "tes2"
-        lastNameTxt.text = "tes2"
+        usernetworkProtocol = UserNetworkService()
+        
     }
     
-
-    /*
-    // MARK: - Navigation
-
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        // Get the new view controller using segue.destination.
-        // Pass the selected object to the new view controller.
-    }
-    */
-    @IBAction func signInButton(_ sender: Any) {
+    func signInUser(){
         guard let firstName = firstNameTxt.text, let lastName = lastNameTxt.text else{return}
-        usernetworkProtocol?.signInUser(firstName: firstName, lastName: lastName, completionHandler: { user, errorMessage in
+        usernetworkProtocol?.signInUser(firstName: firstName, lastName: lastName, completionHandler: {
+            [weak self] user, errorMessage in
+            guard let self = self else{return}
             if let message = errorMessage{
                 let alert = UIAlertController(title: "Error", message: message, preferredStyle: .alert)
                 let action = UIAlertAction(title: "Ok", style: .default)
                 alert.addAction(action)
                 self.present(alert, animated: true)
             }else{
-                //ToDo:
                 guard let signINUser = user else{return}
                 if let vc = self.storyboard?.instantiateViewController(withIdentifier: "TabBarVC") {
-                    //vc.signInUser = signINUser
                     UserManager.logedUser = signINUser
                     self.present(vc, animated: true)
                 }
-             
+                
             }
         })
+    }
+    
+    
+    @IBAction func signInButton(_ sender: Any) {
+        signInUser()
     }
     
     @IBAction func goToRegisterButton(_ sender: Any) {

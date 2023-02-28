@@ -8,13 +8,14 @@
 import UIKit
 
 class TagsViewController: UIViewController {
-
+    
     @IBOutlet weak var tagsCollectionView: UICollectionView!
     var postNetworkProtocol : PostNetworkProtocol?
     var tagsArray : [String?] = []
+    
     override func viewDidLoad() {
         super.viewDidLoad()
-    postNetworkProtocol = PostNetworkService()
+        postNetworkProtocol = PostNetworkService()
         setUpCollection()
         getAllTags()
     }
@@ -25,19 +26,20 @@ class TagsViewController: UIViewController {
     }
     func getAllTags(){
         Indicator.shared.setUpIndicator(view: view)
-
-        postNetworkProtocol?.getAllTags(completionHandler: { tags in
+        
+        postNetworkProtocol?.getAllTags(completionHandler: { [weak self] tags in
+            guard let self = self else{return}
             Indicator.shared.indicator.stopAnimating()
             self.tagsArray = tags
             print(self.tagsArray)
             self.tagsCollectionView.reloadData()
         })
     }
-
+    
 }
 extension TagsViewController : UICollectionViewDelegate,UICollectionViewDataSource,UICollectionViewDelegateFlowLayout{
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        tagsArray.count 
+        tagsArray.count
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
@@ -45,6 +47,7 @@ extension TagsViewController : UICollectionViewDelegate,UICollectionViewDataSour
         cell.tagsLabel.text = tagsArray[indexPath.row]
         return cell
     }
+    
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
         return CGSize(width: (view.frame.width/3)-1, height: (view.frame.width/3)-1)
     }

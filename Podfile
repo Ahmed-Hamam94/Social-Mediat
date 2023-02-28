@@ -8,6 +8,8 @@ target 'Social Mediat' do
   # Pods for Social Mediat
   pod 'Alamofire'
   pod 'SwiftyJSON', '~> 4.0'
+  pod 'IQKeyboardManagerSwift'
+  pod 'lottie-ios'
 
   target 'Social MediatTests' do
     inherit! :search_paths
