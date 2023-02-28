@@ -30,6 +30,15 @@ class PostTableViewCell: UITableViewCell {
     }
     
     @IBOutlet weak var likesLabel: UILabel!
+    
+    @IBOutlet weak var tagsCollectionView: UICollectionView!{
+        didSet{
+            tagsCollectionView.delegate = self
+            tagsCollectionView.dataSource = self
+            setUptagsCell()
+        }
+    }
+    var tags = [String]()
     override func awakeFromNib() {
         super.awakeFromNib()
         // Initialization code
@@ -45,4 +54,22 @@ class PostTableViewCell: UITableViewCell {
         NotificationCenter.default.post(name: Notification.Name("userSv"),object: nil,userInfo: ["cell":self])
         
     }
+    func setUptagsCell(){
+        tagsCollectionView.register(UINib(nibName: "TagsPostCollectionViewCell", bundle: nil), forCellWithReuseIdentifier: "TagsPostCollectionViewCell")
+    }
+}
+
+extension PostTableViewCell : UICollectionViewDelegate,UICollectionViewDataSource{
+    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+        return tags.count
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+        
+        guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "TagsPostCollectionViewCell", for: indexPath) as? TagsPostCollectionViewCell else{return TagsPostCollectionViewCell()}
+        cell.tagNameLabel.text = "#\(tags[indexPath.row])"
+        return cell
+    }
+    
+    
 }
