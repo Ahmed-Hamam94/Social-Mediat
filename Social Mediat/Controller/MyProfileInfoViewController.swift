@@ -24,8 +24,24 @@ class MyProfileInfoViewController: UIViewController {
         super.viewDidLoad()
         userNetworkProtocol = UserNetworkService()
         setUpUserUI()
+        getUserInfo()
+    }
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+      //  setUpUserUI()
     }
     
+    func getUserInfo(){
+        if let user = UserManager.logedUser{
+            userNetworkProtocol?.getSpecificUser(userId: user.id, completionHandler: {[weak self] user in
+                guard let self = self else{return}
+                DispatchQueue.main.async {
+                    self.gendreTextField.text = user.gender
+                    self.phoneTextField.text = user.phone
+                }
+            })
+        }
+        }
     
     func setUpUserUI(){
         
@@ -35,17 +51,8 @@ class MyProfileInfoViewController: UIViewController {
             userImageView.setUpImageFromString(stringUrl: user.picture ?? "url")
             imageUrlTextField.text = user.picture ?? ""
             titleTextField.text = user.title
-            
-            userNetworkProtocol?.getSpecificUser(userId: user.id, completionHandler: {[weak self] user in
-                guard let self = self else{return}
-                DispatchQueue.main.async {
-                    self.gendreTextField.text = user.gender
-                    self.phoneTextField.text = user.phone
-                }
-            })
-            
-            
         }
+        
     }
     
     func addUserInfo(){
@@ -73,6 +80,7 @@ class MyProfileInfoViewController: UIViewController {
     
     @IBAction func submitButton(_ sender: Any) {
         addUserInfo()
+        //setUpUserUI()
     }
     
 }

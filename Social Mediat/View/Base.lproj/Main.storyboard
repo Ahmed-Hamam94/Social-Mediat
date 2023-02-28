@@ -189,7 +189,7 @@
                                         </connections>
                                     </button>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Create Post" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="9Pu-CT-MzC">
-                                        <rect key="frame" x="112" y="95.333333333333329" width="169" height="40.666666666666671"/>
+                                        <rect key="frame" x="112" y="95.666666666666671" width="169" height="40.666666666666671"/>
                                         <fontDescription key="fontDescription" type="system" pointSize="34"/>
                                         <nil key="textColor"/>
                                         <nil key="highlightedColor"/>
@@ -206,20 +206,19 @@
                                 </constraints>
                             </view>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="v9U-36-nlf" userLabel="containerView" customClass="ShadowV" customModule="Social_Mediat" customModuleProvider="target">
-                                <rect key="frame" x="10" y="183" width="373" height="624.66666666666663"/>
+                                <rect key="frame" x="10" y="183" width="373" height="625"/>
                                 <subviews>
                                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="LWd-m6-KsG" customClass="ShadowV" customModule="Social_Mediat" customModuleProvider="target">
-                                        <rect key="frame" x="10" y="90" width="353" height="65"/>
+                                        <rect key="frame" x="10" y="90" width="353" height="65.333333333333314"/>
                                         <subviews>
                                             <textField opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="248" contentHorizontalAlignment="left" contentVerticalAlignment="center" placeholder="What's on your mind?" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="G5i-Cw-d6D" userLabel="Enter">
-                                                <rect key="frame" x="8" y="0.0" width="340" height="65"/>
+                                                <rect key="frame" x="8" y="0.0" width="340" height="65.333333333333329"/>
                                                 <fontDescription key="fontDescription" type="system" pointSize="14"/>
                                                 <textInputTraits key="textInputTraits"/>
                                             </textField>
                                         </subviews>
                                         <color key="backgroundColor" systemColor="systemGray2Color"/>
                                         <constraints>
-                                            <constraint firstAttribute="height" constant="65" id="26z-h8-6y9"/>
                                             <constraint firstAttribute="bottom" secondItem="G5i-Cw-d6D" secondAttribute="bottom" id="eLQ-a6-c8g"/>
                                             <constraint firstItem="G5i-Cw-d6D" firstAttribute="top" secondItem="LWd-m6-KsG" secondAttribute="top" id="hX0-eL-CGf"/>
                                             <constraint firstItem="G5i-Cw-d6D" firstAttribute="leading" secondItem="LWd-m6-KsG" secondAttribute="leading" constant="8" id="vN4-Q4-GGn"/>
@@ -227,7 +226,7 @@
                                         </constraints>
                                     </view>
                                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="jmU-1o-bbl" customClass="ShadowV" customModule="Social_Mediat" customModuleProvider="target">
-                                        <rect key="frame" x="10" y="270" width="353" height="65"/>
+                                        <rect key="frame" x="10" y="270.33333333333331" width="353" height="65"/>
                                         <subviews>
                                             <textField opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="248" contentHorizontalAlignment="left" contentVerticalAlignment="center" placeholder="Enter image Url.." textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="PUG-7m-SjL" userLabel="Enter">
                                                 <rect key="frame" x="8" y="0.0" width="340" height="65"/>
@@ -245,7 +244,7 @@
                                         </constraints>
                                     </view>
                                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="UaW-bl-MDe" customClass="ShadowV" customModule="Social_Mediat" customModuleProvider="target">
-                                        <rect key="frame" x="10" y="192" width="156" height="35"/>
+                                        <rect key="frame" x="10" y="192.33333333333331" width="156" height="35"/>
                                         <subviews>
                                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="RbL-iX-dnA">
                                                 <rect key="frame" x="0.0" y="0.0" width="156" height="35"/>
@@ -269,7 +268,7 @@
                                         </constraints>
                                     </view>
                                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="QMJ-fX-YjH" customClass="ShadowV" customModule="Social_Mediat" customModuleProvider="target">
-                                        <rect key="frame" x="77" y="471" width="218" height="34"/>
+                                        <rect key="frame" x="77" y="471.33333333333337" width="218" height="34"/>
                                         <subviews>
                                             <button opaque="NO" contentMode="scaleToFill" verticalCompressionResistancePriority="751" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Lcs-ku-Vbb">
                                                 <rect key="frame" x="0.0" y="0.0" width="218" height="34"/>
@@ -1351,6 +1350,9 @@
             <point key="canvasLocation" x="872.51908396946567" y="676.76056338028172"/>
         </scene>
     </scenes>
+    <designables>
+        <designable name="cFJ-44-J79"/>
+    </designables>
     <inferredMetricsTieBreakers>
         <segue reference="l6a-7q-mYg"/>
     </inferredMetricsTieBreakers>

@@ -44,7 +44,8 @@ class NewPostViewController: UIViewController {
         createNewPost()
         newPostTextField.text = ""
         newPostImageTxtField.text = ""
-        guard let allPostsvVC = storyboard?.instantiateViewController(withIdentifier: "TabBarVC") as? MainTabBarController else {return}
-        present(allPostsvVC, animated: true)
+        NotificationCenter.default.post(name: NSNotification.Name("addNewPost"), object: nil,userInfo: nil)
+        self.dismiss(animated: true)
+
     }
 }

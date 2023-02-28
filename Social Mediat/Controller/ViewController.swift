@@ -34,11 +34,12 @@ class ViewController: UIViewController {
         setUpTable()
         setUpCell()
     }
+   
     
     func getAllPosts(){
         Indicator.shared.setUpIndicator(view: view)
-        networkProtocol?.getAllPosts(page: pageCount, tag: tag, completionHandler: { [weak self] post in
-            guard let self = self else{return}
+        networkProtocol?.getAllPosts(page: pageCount, tag: tag, completionHandler: {  post in
+           // guard let self = self else{return}
             print(post)
             self.total = post.total
             self.postsArray.append(contentsOf: post.data)
@@ -58,6 +59,7 @@ class ViewController: UIViewController {
     func checkTags(){
         if let myTag = tag{
             tagLabel.text = myTag
+            containerBtn.isHidden = true
         }else{
             tagContainerView.isHidden = true
             closeButton.isHidden = true
@@ -78,6 +80,8 @@ class ViewController: UIViewController {
         
         NotificationCenter.default.addObserver(self, selector: #selector(userChanePic), name: NSNotification.Name(rawValue: "changeProfilePic"), object: nil)
         
+        NotificationCenter.default.addObserver(self, selector: #selector(newPostAdded), name: NSNotification.Name("addNewPost"), object: nil)
+        
     }
     
     @objc func userSVClicked(notification: Notification){
@@ -92,6 +96,11 @@ class ViewController: UIViewController {
         
     }
     @objc func userChanePic(notification: Notification){
+        self.postsArray = []
+        self.pageCount = 0
+        getAllPosts()
+    }
+    @objc func newPostAdded(notification: Notification){
         self.postsArray = []
         self.pageCount = 0
         getAllPosts()

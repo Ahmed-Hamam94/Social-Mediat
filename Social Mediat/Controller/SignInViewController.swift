@@ -34,6 +34,8 @@ class SignInViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         usernetworkProtocol = UserNetworkService()
+        firstNameTxt.text = "ahmed"
+        lastNameTxt.text = "hamam"
         
     }
     
